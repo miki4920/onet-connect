@@ -4,7 +4,7 @@ import './App.css';
 
 class Tile {
     constructor() {
-        this.image = "logo192.png"
+        this.image = "icons/skull.png"
     }
 }
 
@@ -23,8 +23,8 @@ class Board extends React.Component {
 
     constructor(props) {
         super(props);
-        this.boardWidth = 12;
-        this.boardHeight = 6;
+        this.boardWidth = 6;
+        this.boardHeight = 12;
         this.board = this.createBoard()
 
     }
@@ -35,7 +35,6 @@ class Board extends React.Component {
                 <div key={uuidv4()} className="row">
                     {row.map((tile) =>
                         <button key={uuidv4()} className="tile">
-                            <img src={tile.image} alt="Tile"/>
                         </button>
                     )}
                 </div>
