@@ -13,18 +13,28 @@ function randomiseArray(array) {
     return array;
 }
 
-class Tile {
-    constructor() {
-        this.image = ""
+class Tile extends React.Component {
+    render() {
+        return(
+        <button
+            key={uuidv4()}
+            className={"tile" + (this.props.image ? " hasTile" : " noTile")}
+            id={this.props.clicked ? "clicked" : undefined}
+            style={{
+                backgroundImage: `url("icons/${this.props.image}.png")`,
+                backgroundSize: "cover"
+            }}
+            onClick={this.props.onClick}>
+        </button>)
     }
 }
 
 class Board extends React.Component {
     randomiseTiles(tileQueue) {
         while (tileQueue.length > 0) {
-            let image = this.icons[(tileQueue.length/2) % (this.icons.length)]
+            let icon = this.icons[(tileQueue.length / 2) % (this.icons.length)]
             for (let i = 0; i < 2; i++) {
-                tileQueue.pop().image = image
+                tileQueue.pop().image = icon
             }
         }
     }
@@ -34,10 +44,10 @@ class Board extends React.Component {
         let queue = []
         for (let y = 0; y < this.boardHeight; y++) {
             let row = []
-            for (let x = 0; x < this.boardWidth ; x++) {
-                let tile = new Tile()
+            for (let x = 0; x < this.boardWidth; x++) {
+                let tile = {"image": ""}
                 row.push(tile)
-                if (!(x === 0 || y === 0 || x === this.boardWidth-1 || y === this.boardHeight-1)) {
+                if (!(x === 0 || y === 0 || x === this.boardWidth - 1 || y === this.boardHeight - 1)) {
                     queue.push(tile)
                 }
             }
@@ -54,26 +64,55 @@ class Board extends React.Component {
         this.boardHeight = 14;
         this.icons = ["animal_skull", "arrow", "bone", "book", "boot", "brain", "crown", "doll", "eyes", "gloves",
             "heart", "helmet", "key", "knife", "letter", "papyrus", "potion", "purse", "scroll", "skull", "stake",
-            "tooth", ""]
-        this.board = this.createBoard()
+            "tooth"]
+        this.state = {
+            board: this.createBoard(),
+            x: null,
+            y: null
+        }
+    }
+
+    checkPath(xIndex, yIndex) {
+        return this.state.board[this.state.y][this.state.x].image === this.state.board[yIndex][xIndex].image
+    }
+
+    setBlank(xIndex, yIndex) {
+        let board = this.state.board
+        board[yIndex][xIndex] = ""
+        this.setState({board: board})
+    }
+
+    clickTile(xIndex, yIndex) {
+        if(this.state.x === null && this.state.y === null) {
+            this.setState({x: xIndex, y: yIndex})
+        }
+        else if(this.state.x !== null && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
+            this.setBlank(this.state.x, this.state.y)
+            this.setBlank(xIndex, yIndex)
+            this.setState({x: null, y: null})
+        }
+        else {
+            this.setState({x: null, y: null})
+        }
+
 
     }
 
     render() {
         return (
             <main>
-                {this.board.map((row) => (
+                {this.state.board.map((row, yIndex) => (
                     <div key={uuidv4()} className="row">
-                        {row.map((tile) =>
-                            <button
-                                key={uuidv4()}
-                                className={"tile" + (tile.image ? " hasTile" : " noTile")}
-                                style={{
-                                    backgroundImage: `url("icons/${tile.image}.png")`,
-                                    backgroundSize: "cover"
-                                }}>
-                            </button>
+                        {row.map((tile, xIndex) =>
+                            (
+                                <Tile key={uuidv4()}
+                                      image={tile.image}
+                                      clicked={xIndex === this.state.x && yIndex === this.state.y}
+                                      onClick={() => this.clickTile(xIndex, yIndex)}
+                                />
+                            )
                         )}
+
                     </div>
                 ))}
             </main>
