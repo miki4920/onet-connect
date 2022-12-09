@@ -78,15 +78,15 @@ class Board extends React.Component {
 
     setBlank(xIndex, yIndex) {
         let board = this.state.board
-        board[yIndex][xIndex] = ""
+        board[yIndex][xIndex].image = ""
         this.setState({board: board})
     }
 
     clickTile(xIndex, yIndex) {
-        if(this.state.x === null && this.state.y === null) {
+        if(this.state.x === null && this.state.y === null && this.state.board[yIndex][xIndex].image !== "") {
             this.setState({x: xIndex, y: yIndex})
         }
-        else if(this.state.x !== null && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
+        else if(this.state.x !== null && this.state.x !== xIndex && this.state.y !== yIndex && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
             this.setBlank(this.state.x, this.state.y)
             this.setBlank(xIndex, yIndex)
             this.setState({x: null, y: null})
