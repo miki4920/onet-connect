@@ -22,7 +22,7 @@ class Tile {
 class Board extends React.Component {
     randomiseTiles(tileQueue) {
         while (tileQueue.length > 0) {
-            let image = this.icons[Math.floor(Math.random() * this.icons.length)]
+            let image = this.icons[(tileQueue.length/2) % (this.icons.length)]
             for (let i = 0; i < 2; i++) {
                 tileQueue.pop().image = image
             }
@@ -32,12 +32,14 @@ class Board extends React.Component {
     createBoard() {
         let board = []
         let queue = []
-        for (let y = 0; y < this.boardHeight + 2; y++) {
+        for (let y = 0; y < this.boardHeight; y++) {
             let row = []
-            for (let x = 0; x < this.boardWidth + 2; x++) {
+            for (let x = 0; x < this.boardWidth ; x++) {
                 let tile = new Tile()
                 row.push(tile)
-                queue.push(tile)
+                if (!(x === 0 || y === 0 || x === this.boardWidth-1 || y === this.boardHeight-1)) {
+                    queue.push(tile)
+                }
             }
             board.push(row)
         }
@@ -48,8 +50,8 @@ class Board extends React.Component {
 
     constructor(props) {
         super(props);
-        this.boardWidth = 6;
-        this.boardHeight = 12;
+        this.boardWidth = 8;
+        this.boardHeight = 14;
         this.icons = ["animal_skull", "arrow", "bone", "book", "boot", "brain", "crown", "doll", "eyes", "gloves",
             "heart", "helmet", "key", "knife", "letter", "papyrus", "potion", "purse", "scroll", "skull", "stake",
             "tooth", ""]
@@ -58,16 +60,14 @@ class Board extends React.Component {
     }
 
     render() {
-
         return (
             <main>
                 {this.board.map((row) => (
                     <div key={uuidv4()} className="row">
                         {row.map((tile) =>
-
                             <button
                                 key={uuidv4()}
-                                className={"tile" + (tile.image ? " hasTile" : "")}
+                                className={"tile" + (tile.image ? " hasTile" : " noTile")}
                                 style={{
                                     backgroundImage: `url("icons/${tile.image}.png")`,
                                     backgroundSize: "cover"
