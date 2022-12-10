@@ -124,7 +124,23 @@ class Board extends React.Component {
         return this.traversalAlgorithm(board, xIndex, yIndex)
     }
 
+    backtrackPath(xIndex, yIndex) {
+        let path = []
+        let node = this.state.board[yIndex][xIndex]
+        while(node) {
+            path.push(node)
+            node = node.previous
+        }
+        return path
+    }
 
+    colorPath(board, path) {
+        path.forEach((node) => {node.colored = true})
+        setTimeout(() => {
+            path.forEach((node) => {node.colored = undefined})
+            this.setState({board: board})
+        }, 1000)
+    }
 
     checkPath(xIndex, yIndex) {
         if (this.state.board[this.state.y][this.state.x].image !== this.state.board[yIndex][xIndex].image) {
