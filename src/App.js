@@ -86,7 +86,7 @@ class Board extends React.Component {
         if(this.state.x === null && this.state.y === null && this.state.board[yIndex][xIndex].image !== "") {
             this.setState({x: xIndex, y: yIndex})
         }
-        else if(this.state.x !== null && this.state.x !== xIndex && this.state.y !== yIndex && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
+        else if(this.state.x !== null && (this.state.x !== xIndex || this.state.y !== yIndex) && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
             this.setBlank(this.state.x, this.state.y)
             this.setBlank(xIndex, yIndex)
             this.setState({x: null, y: null})
