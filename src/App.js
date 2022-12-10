@@ -73,7 +73,41 @@ class Board extends React.Component {
         this.visited = []
     }
 
+    getNeighbours(board, queue, node) {
+        let neighbours = [
+            {"y": node.y - 1, "x": node.x},
+            {"y": node.y + 1, "x": node.x},
+            {"y": node.y, "x": node.x - 1},
+            {"y": node.y, "x": node.x + 1}]
+        let visited = JSON.stringify(this.visited)
+        for(const neighbour of neighbours) {
+            if (0 <= neighbour.y && neighbour.y < this.boardWidth && 0 <= neighbour.x && neighbour.x < this.boardHeight
+                && visited.indexOf(JSON.stringify([neighbour.x, neighbour.y])) === -1) {
+                let neighbourNode = board[neighbour.y][neighbour.x]
+                if (node.path + 1 < neighbourNode.path) {
+                    neighbourNode.path = node.path + 1
+                    neighbourNode.previous = node
+                }
+                queue.push(board[neighbour.y][neighbour.x])
+            }
+        }
+        return queue
+    }
 
+    traversalAlgorithm(board, xIndex, yIndex) {
+        let queue = []
+        let firstNode = board[this.state.y][this.state.x]
+        firstNode.path = 0
+        queue = this.getNeighbours(board, queue, firstNode)
+        while (queue.length !== 0) {
+            let node = queue.shift()
+            this.visited.push([node.x, node.y])
+            if(board[node.y][node.x].image === "") {
+                queue = this.getNeighbours(board, queue, node)
+            }
+        }
+        return board[yIndex][xIndex].previous !== null
+    }
 
     findPath(xIndex, yIndex) {
         let board = this.state.board
