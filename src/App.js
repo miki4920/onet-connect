@@ -73,6 +73,19 @@ class Board extends React.Component {
         this.visited = []
     }
 
+    isTurning(turningPoint, node) {
+        if(turningPoint.previous === null) {
+            return false
+        }
+        else if(Math.abs(node.x - turningPoint.x) !== Math.abs(turningPoint.x - turningPoint.previous.x)) {
+            return true
+        }
+        else if(Math.abs(node.y - turningPoint.y) !== Math.abs(turningPoint.y - turningPoint.previous.y)) {
+            return true
+        }
+        return false
+    }
+
     getNeighbours(board, queue, node) {
         let neighbours = [
             {"y": node.y - 1, "x": node.x},
@@ -84,9 +97,11 @@ class Board extends React.Component {
             if (0 <= neighbour.y && neighbour.y < this.boardWidth && 0 <= neighbour.x && neighbour.x < this.boardHeight
                 && visited.indexOf(JSON.stringify([neighbour.x, neighbour.y])) === -1) {
                 let neighbourNode = board[neighbour.y][neighbour.x]
-                if (node.path + 1 < neighbourNode.path) {
+                let turning = this.isTurning(node, neighbourNode)
+                if (node.path + 1 < neighbourNode.path && node.turns + turning <= 2) {
                         neighbourNode.path = node.path + 1
                         neighbourNode.previous = node
+                        neighbourNode.turns = node.turns + turning
                 }
                 queue.push(board[neighbour.y][neighbour.x])
             }
@@ -117,6 +132,7 @@ class Board extends React.Component {
                 board[y][x].path = Number.MAX_VALUE
                 board[y][x].x = x
                 board[y][x].y = y
+                board[y][x].turns = 0
                 board[y][x].previous = null
             }
         }
@@ -131,23 +147,6 @@ class Board extends React.Component {
             node = node.previous
         }
         return path
-    }
-
-    checkForTurns(path) {
-        let turns = 0
-        for(const node of path) {
-            let turningPoint = node.previous
-            if(turningPoint.previous === null) {
-                break
-            }
-            else if(Math.abs(node.x - turningPoint.x) !== Math.abs(turningPoint.x - turningPoint.previous.x)) {
-                turns += 1
-            }
-            else if(Math.abs(node.y - turningPoint.y) !== Math.abs(turningPoint.y - turningPoint.previous.y)) {
-                turns += 1
-            }
-        }
-        return turns <= 2
     }
 
     colorPath(board, path) {
@@ -167,9 +166,6 @@ class Board extends React.Component {
             return false
         }
         let path = this.backtrackPath(xIndex, yIndex)
-        if (!this.checkForTurns(path)) {
-            return false
-        }
         this.colorPath(this.state.board, path)
         return true
     }
