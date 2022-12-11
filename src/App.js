@@ -85,8 +85,8 @@ class Board extends React.Component {
                 && visited.indexOf(JSON.stringify([neighbour.x, neighbour.y])) === -1) {
                 let neighbourNode = board[neighbour.y][neighbour.x]
                 if (node.path + 1 < neighbourNode.path) {
-                    neighbourNode.path = node.path + 1
-                    neighbourNode.previous = node
+                        neighbourNode.path = node.path + 1
+                        neighbourNode.previous = node
                 }
                 queue.push(board[neighbour.y][neighbour.x])
             }
@@ -117,7 +117,6 @@ class Board extends React.Component {
                 board[y][x].path = Number.MAX_VALUE
                 board[y][x].x = x
                 board[y][x].y = y
-                board[y][x].turns = Number.MAX_VALUE
                 board[y][x].previous = null
             }
         }
@@ -132,6 +131,23 @@ class Board extends React.Component {
             node = node.previous
         }
         return path
+    }
+
+    checkForTurns(path) {
+        let turns = 0
+        for(const node of path) {
+            let turningPoint = node.previous
+            if(turningPoint.previous === null) {
+                break
+            }
+            else if(Math.abs(node.x - turningPoint.x) !== Math.abs(turningPoint.x - turningPoint.previous.x)) {
+                turns += 1
+            }
+            else if(Math.abs(node.y - turningPoint.y) !== Math.abs(turningPoint.y - turningPoint.previous.y)) {
+                turns += 1
+            }
+        }
+        return turns <= 2
     }
 
     colorPath(board, path) {
@@ -151,8 +167,11 @@ class Board extends React.Component {
             return false
         }
         let path = this.backtrackPath(xIndex, yIndex)
+        if (!this.checkForTurns(path)) {
+            return false
+        }
         this.colorPath(this.state.board, path)
-        return pathExists
+        return true
     }
 
     setBlank(xIndex, yIndex) {
@@ -165,9 +184,12 @@ class Board extends React.Component {
         if(this.state.x === null && this.state.y === null && this.state.board[yIndex][xIndex].image !== "") {
             this.setState({x: xIndex, y: yIndex})
         }
-        else if(this.state.x !== null && (this.state.x !== xIndex || this.state.y !== yIndex) && this.state.y !== null && this.checkPath(xIndex, yIndex)) {
-            this.setBlank(this.state.x, this.state.y)
-            this.setBlank(xIndex, yIndex)
+        else if(this.state.x !== null && (this.state.x !== xIndex || this.state.y !== yIndex) && this.state.y !== null) {
+            let pathExists = this.checkPath(xIndex, yIndex)
+            if(pathExists) {
+                this.setBlank(this.state.x, this.state.y)
+                this.setBlank(xIndex, yIndex)
+            }
             this.setState({x: null, y: null})
         }
         else {
