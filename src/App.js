@@ -98,8 +98,9 @@ class Board extends React.Component {
                 && visited.indexOf(JSON.stringify([neighbour.x, neighbour.y])) === -1) {
                 let neighbourNode = board[neighbour.y][neighbour.x]
                 let turning = this.isTurning(node, neighbourNode)
-                if (node.path + 1 < neighbourNode.path && node.turns + turning <= 2) {
-                        neighbourNode.path = node.path + 1
+                if (node.path + 1 + (node.turns + turning) * (this.boardWidth + this.boardHeight) < neighbourNode.path
+                    && node.turns + turning <= 2) {
+                        neighbourNode.path = node.path + 1 + (node.turns + turning) * (this.boardWidth + this.boardHeight)
                         neighbourNode.previous = node
                         neighbourNode.turns = node.turns + turning
                 }
