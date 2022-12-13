@@ -2,6 +2,7 @@ import React from 'react';
 import {v4 as uuidv4} from 'uuid';
 import './App.css';
 
+// Shuffles Array, Fisher-Yates Shuffle
 function randomiseArray(array) {
     let currentIndex = array.length, randomIndex;
     while (currentIndex !== 0) {
@@ -18,10 +19,12 @@ class Tile extends React.Component {
         return(
         <button
             key={uuidv4()}
+            // Changes whether the tile shows image, empty, or (colored for purposes of path)
             className={"tile" + (this.props.image ? " hasTile" : " noTile") + (this.props.colored ? " colored" : "")}
             id={this.props.clicked ? "clicked" : undefined}
             style={{
                 backgroundImage: `url("icons/${this.props.image}.png")`,
+                // This needs to be included in here, rather than in css as otherwise it is ignored
                 backgroundSize: "cover"
             }}
             onClick={this.props.onClick}>
@@ -30,6 +33,7 @@ class Tile extends React.Component {
 }
 
 class Board extends React.Component {
+    // Goes through a list of all elements, and pseudo-randomly assigns images to them
     randomiseTiles(tileQueue) {
         while (tileQueue.length > 0) {
             let icon = this.icons[(tileQueue.length / 2) % (this.icons.length)]
@@ -47,6 +51,7 @@ class Board extends React.Component {
             for (let x = 0; x < this.boardHeight; x++) {
                 let tile = {"image": ""}
                 row.push(tile)
+                // Puts tile into queue for tile randomisation, but only if tile is not located on the border
                 if (!(x === 0 || y === 0 || x === this.boardHeight - 1 || y === this.boardWidth - 1)) {
                     queue.push(tile)
                 }
@@ -73,6 +78,7 @@ class Board extends React.Component {
         this.visited = []
     }
 
+    // Given 3 nodes, turning only happens when all 3 nodes are not in the same line
     isTurning(turningPoint, node) {
         if(turningPoint.previous === null) {
             return false
@@ -87,6 +93,7 @@ class Board extends React.Component {
     }
 
     getNeighbours(board, queue, node) {
+        // Create coordinates for 4 neighbours around the square
         let neighbours = [
             {"y": node.y - 1, "x": node.x},
             {"y": node.y + 1, "x": node.x},
@@ -94,10 +101,12 @@ class Board extends React.Component {
             {"y": node.y, "x": node.x + 1}]
         let visited = JSON.stringify(this.visited)
         for(const neighbour of neighbours) {
+            // Checks if the neighbour has been visited and is within the board
             if (0 <= neighbour.y && neighbour.y < this.boardWidth && 0 <= neighbour.x && neighbour.x < this.boardHeight
                 && visited.indexOf(JSON.stringify([neighbour.x, neighbour.y])) === -1) {
                 let neighbourNode = board[neighbour.y][neighbour.x]
                 let turning = this.isTurning(node, neighbourNode)
+                // Checks the shortest path with the fewest turns by treating each turn as a large distance
                 if (node.path + 1 + (node.turns + turning) * (this.boardWidth + this.boardHeight) < neighbourNode.path
                     && node.turns + turning <= 2) {
                         neighbourNode.path = node.path + 1 + (node.turns + turning) * (this.boardWidth + this.boardHeight)
@@ -110,6 +119,7 @@ class Board extends React.Component {
         return queue
     }
 
+    // Dijkstra's algorithm
     traversalAlgorithm(board, xIndex, yIndex) {
         let queue = []
         let firstNode = board[this.state.y][this.state.x]
@@ -125,7 +135,8 @@ class Board extends React.Component {
         return board[yIndex][xIndex].previous !== null
     }
 
-    findPath(xIndex, yIndex) {
+    // This function sets board parameters to ensure consistent results between searches
+    async findPath(xIndex, yIndex) {
         let board = this.state.board
         this.visited = []
         for (let y = 0; y < this.boardWidth; y++) {
@@ -140,7 +151,8 @@ class Board extends React.Component {
         return this.traversalAlgorithm(board, xIndex, yIndex)
     }
 
-    backtrackPath(xIndex, yIndex) {
+    // Backtracking algorithm to find the path
+    async backtrackPath(xIndex, yIndex) {
         let path = []
         let node = this.state.board[yIndex][xIndex]
         while(node) {
@@ -150,7 +162,7 @@ class Board extends React.Component {
         return path
     }
 
-    colorPath(board, path) {
+    async colorPath(board, path) {
         path.forEach((node) => {node.colored = true})
         setTimeout(() => {
             path.forEach((node) => {node.colored = undefined})
@@ -158,16 +170,16 @@ class Board extends React.Component {
         }, 1000)
     }
 
-    checkPath(xIndex, yIndex) {
+    async checkPath(xIndex, yIndex) {
         if (this.state.board[this.state.y][this.state.x].image !== this.state.board[yIndex][xIndex].image) {
             return false;
         }
-        let pathExists = this.findPath(xIndex, yIndex)
+        let pathExists = await this.findPath(xIndex, yIndex)
         if(!pathExists) {
             return false
         }
-        let path = this.backtrackPath(xIndex, yIndex)
-        this.colorPath(this.state.board, path)
+        let path = await this.backtrackPath(xIndex, yIndex)
+        await this.colorPath(this.state.board, path)
         return true
     }
 
@@ -177,12 +189,12 @@ class Board extends React.Component {
         this.setState({board: board})
     }
 
-    clickTile(xIndex, yIndex) {
+    async clickTile(xIndex, yIndex) {
         if(this.state.x === null && this.state.y === null && this.state.board[yIndex][xIndex].image !== "") {
             this.setState({x: xIndex, y: yIndex})
         }
         else if(this.state.x !== null && (this.state.x !== xIndex || this.state.y !== yIndex) && this.state.y !== null) {
-            let pathExists = this.checkPath(xIndex, yIndex)
+            let pathExists = await this.checkPath(xIndex, yIndex)
             if(pathExists) {
                 this.setBlank(this.state.x, this.state.y)
                 this.setBlank(xIndex, yIndex)
@@ -219,6 +231,7 @@ class Board extends React.Component {
 }
 
 class App extends React.Component {
+
     render() {
         return <Board/>
     }
