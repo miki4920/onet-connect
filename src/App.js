@@ -78,6 +78,30 @@ class Board extends React.Component {
         this.visited = []
     }
 
+    reshuffleTiles(queue) {
+        while(queue.length !== 0) {
+            let elementOne = queue.pop()
+            let elementTwo = queue.pop()
+            let tempImage = elementOne.image
+            elementOne.image = elementTwo.image
+            elementTwo.image = tempImage
+        }
+        this.setState({board: this.state.board})
+    }
+
+    reshuffleBoard() {
+        let queue = []
+        for (let y = 0; y < this.boardWidth; y++) {
+            for (let x = 0; x < this.boardHeight; x++) {
+                if (this.state.board[y][x].image !== "") {
+                    queue.push(this.state.board[y][x])
+                }
+            }
+        }
+        queue = randomiseArray(queue)
+        this.reshuffleTiles(queue)
+    }
+
     // Given 3 nodes, turning only happens when all 3 nodes are not in the same line
     isTurning(turningPoint, node) {
         if(turningPoint.previous === null) {
@@ -209,6 +233,7 @@ class Board extends React.Component {
     render() {
         return (
             <main>
+                <button id="reshuffle" onClick={() => this.reshuffleBoard()}/>
                 {this.state.board.map((row, yIndex) => (
                     <div key={uuidv4()} className="row">
                         {row.map((tile, xIndex) =>
