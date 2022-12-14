@@ -67,4 +67,13 @@ main {
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid;
   border-radius: 10%;
+  cursor: pointer;
+}
+
+#reshuffle:hover {
+  background-color: rgba(255, 255, 255, 0.09);
+}
+
+#reshuffle:active {
+  background-color: rgba(255, 255, 255, 0.16);
 }

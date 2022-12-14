@@ -233,7 +233,10 @@ class Board extends React.Component {
     render() {
         return (
             <main>
-                <button id="reshuffle" onClick={() => this.reshuffleBoard()}/>
+                <button id="reshuffle" onClick={() => this.reshuffleBoard()} style={{
+                     backgroundImage: `url("icons/shuffle.png")`,
+                     backgroundSize: "cover"
+                }}/>
                 {this.state.board.map((row, yIndex) => (
                     <div key={uuidv4()} className="row">
                         {row.map((tile, xIndex) =>
