@@ -14,7 +14,9 @@ The Onet Connect puzzle game at the core is remarkably simple. To play the game 
 # How to Run
 1. Clone the repository
 2. Open the terminal in the project directory and run the fallowing comamnds:
-	3. npm run build
-	4. python main.py
+```
+npm run build
+python main.py
+```
 3. If you have the requirements you should have an instancece of Onet Connect puzzle game running on your local system. Which can be accessed in the browser by going to http://127.0.0.1:5000 .
 
